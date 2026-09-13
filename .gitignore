@@ -1,0 +1,23 @@
+# .NET build output
+**/bin/
+**/obj/
+.vs/
+
+# VS Code
+.vscode/
+
+# Node / React
+**/node_modules/
+**/dist/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Production secrets/configuration
+appsettings.Production.json
+
+# OS files
+.DS_Store
+Thumbs.db
