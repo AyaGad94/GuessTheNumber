@@ -20,6 +20,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Application services
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<JwtTokenService>();
+builder.Services.AddSingleton<GameSessionStore>();
+builder.Services.AddScoped<GameService>();
 
 builder.Services.AddScoped<
     IPasswordHasher<User>,
