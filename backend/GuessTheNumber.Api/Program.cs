@@ -9,8 +9,36 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+const string frontendCorsPolicy = "FrontendCors";
+
+var allowedOrigins =
+    builder.Configuration
+        .GetSection("Cors:AllowedOrigins")
+        .Get<string[]>()
+    ?? throw new InvalidOperationException(
+        "CORS allowed origins configuration is missing.");
+
+if (allowedOrigins.Length == 0)
+{
+    throw new InvalidOperationException(
+        "At least one CORS allowed origin must be configured.");
+}
+
 // Controllers
 builder.Services.AddControllers();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        frontendCorsPolicy,
+        policy =>
+        {
+            policy
+                .WithOrigins(allowedOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
 
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -102,6 +130,7 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+app.UseCors(frontendCorsPolicy);
 app.UseAuthentication();
 app.UseAuthorization();
 
