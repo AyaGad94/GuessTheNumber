@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using GuessTheNumber.Api.DTOs;
 using GuessTheNumber.Api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GuessTheNumber.Api.Controllers;
@@ -35,5 +37,50 @@ public class AuthController : ControllerBase
         return StatusCode(
             StatusCodes.Status201Created,
             registrationResult);
+    }
+
+    [HttpPost("login")]
+    public async Task<ActionResult<LoginResponse>> Login(
+        LoginRequest request,
+        CancellationToken cancellationToken)
+    {
+        var loginResult = await _authService.LoginAsync(
+            request,
+            cancellationToken);
+
+        if (loginResult is null)
+        {
+            return Unauthorized(new
+            {
+                message = "Invalid email or password."
+            });
+        }
+
+        return Ok(loginResult);
+    }
+
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<ActionResult<AuthResponse>> GetCurrentUser(
+        CancellationToken cancellationToken)
+    {
+        var userIdValue = User.FindFirstValue(
+            ClaimTypes.NameIdentifier);
+
+        if (!int.TryParse(userIdValue, out var userId))
+        {
+            return Unauthorized();
+        }
+
+        var currentUser = await _authService.GetCurrentUserAsync(
+            userId,
+            cancellationToken);
+
+        if (currentUser is null)
+        {
+            return Unauthorized();
+        }
+
+        return Ok(currentUser);
     }
 }
