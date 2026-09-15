@@ -29,6 +29,9 @@ function App() {
     setIsCheckingAuthentication,
   ] = useState(true);
 
+  const [authView, setAuthView] =
+    useState("welcome");
+
   useEffect(() => {
     const restoreAuthentication = async () => {
       if (!authToken) {
@@ -42,10 +45,15 @@ function App() {
 
         setAuthenticatedUser(currentUser);
       } catch {
-        sessionStorage.removeItem("authToken");
+        sessionStorage.removeItem(
+          "authToken"
+        );
+
         setAuthToken(null);
       } finally {
-        setIsCheckingAuthentication(false);
+        setIsCheckingAuthentication(
+          false
+        );
       }
     };
 
@@ -68,10 +76,13 @@ function App() {
   };
 
   const handleLogout = () => {
-    sessionStorage.removeItem("authToken");
+    sessionStorage.removeItem(
+      "authToken"
+    );
 
     setAuthToken(null);
     setAuthenticatedUser(null);
+    setAuthView("welcome");
   };
 
   const handleBestScoreChange = (
@@ -105,7 +116,7 @@ function App() {
           </header>
 
           <section className="card auth-card">
-            <p>
+            <p className="status-message">
               Checking authentication...
             </p>
           </section>
@@ -114,7 +125,10 @@ function App() {
     );
   }
 
-  if (authenticatedUser && authToken) {
+  if (
+    authenticatedUser &&
+    authToken
+  ) {
     return (
       <main className="app-shell">
         <div className="app-container">
@@ -138,7 +152,10 @@ function App() {
               <div>
                 <h2 className="welcome-title">
                   Welcome,{" "}
-                  {authenticatedUser.username} 👋
+                  {
+                    authenticatedUser.username
+                  }{" "}
+                  👋
                 </h2>
 
                 <p className="welcome-text">
@@ -187,12 +204,14 @@ function App() {
               )}
             </div>
 
-            <GamePanel
-              authToken={authToken}
-              onBestScoreChange={
-                handleBestScoreChange
-              }
-            />
+            <div className="game-card">
+              <GamePanel
+                authToken={authToken}
+                onBestScoreChange={
+                  handleBestScoreChange
+                }
+              />
+            </div>
           </section>
         </div>
       </main>
@@ -218,19 +237,145 @@ function App() {
           </p>
         </header>
 
-        <section className="card auth-card">
-          <LoginForm
-            onLoginSuccess={
-              handleLoginSuccess
-            }
-          />
+        {authView === "welcome" && (
+          <section className="card entry-card">
+            <div className="entry-icon">
+              ✨
+            </div>
 
-          <div className="auth-divider">
-            <span>or</span>
-          </div>
+            <h2 className="entry-title">
+              Ready to Play?
+            </h2>
 
-          <RegisterForm />
-        </section>
+            <p className="entry-description">
+              Test your guessing skills,
+              follow the higher and lower
+              hints, and try to beat your
+              personal best.
+            </p>
+
+            <div className="entry-features">
+              <div className="entry-feature">
+                <span>🎯</span>
+                <p>
+                  Guess a secret number from
+                  1 to 43
+                </p>
+              </div>
+
+              <div className="entry-feature">
+                <span>🏆</span>
+                <p>
+                  Save and beat your personal
+                  best score
+                </p>
+              </div>
+
+              <div className="entry-feature">
+                <span>📈</span>
+                <p>
+                  Track your guesses and
+                  possible range
+                </p>
+              </div>
+            </div>
+
+            <div className="entry-actions">
+              <button
+                type="button"
+                className="entry-primary-button"
+                onClick={() =>
+                  setAuthView("login")
+                }
+              >
+                Login
+              </button>
+
+              <button
+                type="button"
+                className="entry-secondary-button"
+                onClick={() =>
+                  setAuthView("register")
+                }
+              >
+                Create Account
+              </button>
+            </div>
+
+            <p className="entry-footer">
+              Your best score is saved to
+              your account.
+            </p>
+          </section>
+        )}
+
+        {authView === "login" && (
+          <section className="card auth-card auth-view-card">
+            <button
+              type="button"
+              className="auth-back-button"
+              onClick={() =>
+                setAuthView("welcome")
+              }
+            >
+              ← Back
+            </button>
+
+            <LoginForm
+              onLoginSuccess={
+                handleLoginSuccess
+              }
+            />
+
+            <div className="auth-switch">
+              <span>
+                New to the game?
+              </span>
+
+              <button
+                type="button"
+                className="auth-switch-button"
+                onClick={() =>
+                  setAuthView("register")
+                }
+              >
+                Create an account
+              </button>
+            </div>
+          </section>
+        )}
+
+        {authView === "register" && (
+          <section className="card auth-card auth-view-card">
+            <button
+              type="button"
+              className="auth-back-button"
+              onClick={() =>
+                setAuthView("welcome")
+              }
+            >
+              ← Back
+            </button>
+
+            <RegisterForm />
+
+            <div className="auth-switch">
+              <span>
+                Already have an account?
+              </span>
+
+              <button
+                type="button"
+                className="auth-switch-button"
+                onClick={() =>
+                  setAuthView("login")
+                }
+              >
+                Login
+              </button>
+            </div>
+          </section>
+        )}
       </div>
     </main>
   );

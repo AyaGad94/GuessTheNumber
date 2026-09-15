@@ -4,8 +4,10 @@ import { loginUser } from "../services/api";
 function LoginForm({ onLoginSuccess }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [errorMessage, setErrorMessage] =
     useState("");
+
   const [isSubmitting, setIsSubmitting] =
     useState(false);
 
@@ -16,10 +18,11 @@ function LoginForm({ onLoginSuccess }) {
     setIsSubmitting(true);
 
     try {
-      const loginResponse = await loginUser(
-        email,
-        password
-      );
+      const loginResponse =
+        await loginUser(
+          email,
+          password
+        );
 
       onLoginSuccess(loginResponse);
     } catch (error) {
@@ -30,39 +33,60 @@ function LoginForm({ onLoginSuccess }) {
   };
 
   return (
-    <section>
-      <h2>Login</h2>
+    <section className="auth-section">
+      <h2 className="section-title">
+        Welcome Back
+      </h2>
+
+      <p className="card-description">
+        Sign in to continue your game and
+        view your personal best.
+      </p>
 
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="login-email">
+        <div className="form-group">
+          <label
+            className="form-label"
+            htmlFor="login-email"
+          >
             Email
           </label>
 
           <input
             id="login-email"
+            className="form-input"
             type="email"
+            placeholder="you@example.com"
             value={email}
             onChange={(event) =>
               setEmail(event.target.value)
             }
+            autoComplete="email"
             required
             maxLength={255}
           />
         </div>
 
-        <div>
-          <label htmlFor="login-password">
+        <div className="form-group">
+          <label
+            className="form-label"
+            htmlFor="login-password"
+          >
             Password
           </label>
 
           <input
             id="login-password"
+            className="form-input"
             type="password"
+            placeholder="Enter your password"
             value={password}
             onChange={(event) =>
-              setPassword(event.target.value)
+              setPassword(
+                event.target.value
+              )
             }
+            autoComplete="current-password"
             required
             maxLength={128}
           />
@@ -70,6 +94,7 @@ function LoginForm({ onLoginSuccess }) {
 
         <button
           type="submit"
+          className="primary-button"
           disabled={isSubmitting}
         >
           {isSubmitting
@@ -79,7 +104,9 @@ function LoginForm({ onLoginSuccess }) {
       </form>
 
       {errorMessage && (
-        <p>{errorMessage}</p>
+        <p className="error-message">
+          {errorMessage}
+        </p>
       )}
     </section>
   );

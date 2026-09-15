@@ -23,6 +23,19 @@ function GamePanel({
   const [isSubmitting, setIsSubmitting] =
     useState(false);
 
+  const [guessHistory, setGuessHistory] =
+    useState([]);
+
+  const [
+    minimumPossibleNumber,
+    setMinimumPossibleNumber,
+  ] = useState(1);
+
+  const [
+    maximumPossibleNumber,
+    setMaximumPossibleNumber,
+  ] = useState(43);
+
   const handleStartGame = async () => {
     setIsSubmitting(true);
     setGameMessage("");
@@ -34,6 +47,9 @@ function GamePanel({
       setIsGameActive(true);
       setAttemptCount(0);
       setGuessedNumber("");
+      setGuessHistory([]);
+      setMinimumPossibleNumber(1);
+      setMaximumPossibleNumber(43);
       setGameMessage(startResponse.message);
     } catch (error) {
       setGameMessage(error.message);
@@ -59,6 +75,13 @@ function GamePanel({
       return;
     }
 
+    const isRepeatedGuess =
+      guessHistory.some(
+        (historyItem) =>
+          historyItem.guessedNumber ===
+          numericGuess
+      );
+
     setIsSubmitting(true);
 
     try {
@@ -68,6 +91,23 @@ function GamePanel({
           numericGuess
         );
 
+      const historyItem = {
+        guessedNumber: numericGuess,
+        message: guessResponse.message,
+        attemptCount:
+          guessResponse.attemptCount,
+        isCorrect:
+          guessResponse.isCorrect,
+        isRepeated: isRepeatedGuess,
+      };
+
+      setGuessHistory(
+        (currentHistory) => [
+          ...currentHistory,
+          historyItem,
+        ]
+      );
+
       setAttemptCount(
         guessResponse.attemptCount
       );
@@ -76,11 +116,40 @@ function GamePanel({
         guessResponse.message
       );
 
+      if (
+        guessResponse.message ===
+        "Guess higher."
+      ) {
+        setMinimumPossibleNumber(
+          (currentMinimum) =>
+            Math.max(
+              currentMinimum,
+              numericGuess + 1
+            )
+        );
+      }
+
+      if (
+        guessResponse.message ===
+        "Guess lower."
+      ) {
+        setMaximumPossibleNumber(
+          (currentMaximum) =>
+            Math.min(
+              currentMaximum,
+              numericGuess - 1
+            )
+        );
+      }
+
+      setGuessedNumber("");
+
       if (guessResponse.isCorrect) {
         setIsGameActive(false);
-        setGuessedNumber("");
 
-        if (guessResponse.bestScore !== null) {
+        if (
+          guessResponse.bestScore !== null
+        ) {
           onBestScoreChange(
             guessResponse.bestScore
           );
@@ -94,62 +163,149 @@ function GamePanel({
   };
 
   return (
-    <section>
-      <h2>Guess The Number Game</h2>
+    <section className="game-panel">
+      <h2 className="game-title">
+        Guess The Number Game
+      </h2>
+
+      <p className="game-description">
+        Find the secret number between 1 and
+        43 using as few attempts as possible.
+      </p>
 
       {!isGameActive && (
-        <button
-          type="button"
-          onClick={handleStartGame}
-          disabled={isSubmitting}
-        >
-          {isSubmitting
-            ? "Starting..."
-            : "Start Game"}
-        </button>
+        <div className="game-actions">
+          <button
+            type="button"
+            className="game-action-button"
+            onClick={handleStartGame}
+            disabled={isSubmitting}
+          >
+            <span>
+              {isSubmitting ? "⏳" : "🎮"}
+            </span>
+
+            {isSubmitting
+              ? "Starting..."
+              : "Start Game"}
+          </button>
+        </div>
       )}
 
       {isGameActive && (
-        <form onSubmit={handleGuessSubmit}>
-          <div>
-            <label htmlFor="guessed-number">
-              Enter a number from 1 to 43
-            </label>
+        <>
+          <p className="possible-range">
+            Possible range:{" "}
+            <strong>
+              {minimumPossibleNumber} –{" "}
+              {maximumPossibleNumber}
+            </strong>
+          </p>
 
-            <input
-              id="guessed-number"
-              type="number"
-              min="1"
-              max="43"
-              value={guessedNumber}
-              onChange={(event) =>
-                setGuessedNumber(
-                  event.target.value
-                )
-              }
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
+          <form
+            className="game-form"
+            onSubmit={handleGuessSubmit}
           >
-            {isSubmitting
-              ? "Checking..."
-              : "Submit Guess"}
-          </button>
-        </form>
+            <div className="guess-field">
+              <label
+                className="guess-label"
+                htmlFor="guessed-number"
+              >
+                Enter your guess
+              </label>
+
+              <input
+                id="guessed-number"
+                className="guess-input"
+                type="number"
+                min="1"
+                max="43"
+                placeholder="1–43"
+                value={guessedNumber}
+                onChange={(event) =>
+                  setGuessedNumber(
+                    event.target.value
+                  )
+                }
+                disabled={isSubmitting}
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="game-action-button"
+              disabled={isSubmitting}
+            >
+              <span>
+                {isSubmitting ? "⏳" : "🎯"}
+              </span>
+
+              {isSubmitting
+                ? "Checking..."
+                : "Submit Guess"}
+            </button>
+          </form>
+        </>
       )}
 
       {attemptCount > 0 && (
-        <p>
+        <p className="attempt-badge">
           Attempts: {attemptCount}
         </p>
       )}
 
       {gameMessage && (
-        <p>{gameMessage}</p>
+        <p className="game-message">
+          {gameMessage}
+        </p>
+      )}
+
+      {guessHistory.length > 0 && (
+        <section className="guess-history">
+          <h3>Guess History</h3>
+
+          <div className="guess-history-list">
+            {guessHistory.map(
+              (historyItem, index) => (
+                <div
+                  className="guess-history-item"
+                  key={`${historyItem.attemptCount}-${index}`}
+                >
+                  <span className="history-number">
+                    {
+                      historyItem.guessedNumber
+                    }
+                  </span>
+
+                  <span
+                    className={`history-feedback ${
+                      historyItem.isCorrect
+                        ? "history-correct"
+                        : historyItem.message ===
+                            "Guess higher."
+                          ? "history-higher"
+                          : "history-lower"
+                    }`}
+                  >
+                    {historyItem.isCorrect
+                      ? "✓ Correct"
+                      : historyItem.message ===
+                          "Guess higher."
+                        ? "↑ Higher"
+                        : "↓ Lower"}
+                  </span>
+
+                  {historyItem.isRepeated && (
+                    <span className="history-repeat">
+                      ⚠ Already guessed
+                    </span>
+                  )}
+                </div>
+              )
+            )}
+          </div>
+        </section>
       )}
     </section>
   );
