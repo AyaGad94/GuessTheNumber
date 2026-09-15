@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +28,54 @@ if (allowedOrigins.Length == 0)
 // Controllers
 builder.Services.AddControllers();
 
+// Swagger / OpenAPI
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc(
+        "v1",
+        new OpenApiInfo
+        {
+            Title = "GuessTheNumber API",
+            Version = "v1",
+            Description =
+                "ASP.NET Core Web API for the Guess The Number interview assessment."
+        });
+
+    options.AddSecurityDefinition(
+        "Bearer",
+        new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description =
+                "Enter your JWT token to access protected endpoints."
+        });
+
+    options.AddSecurityRequirement(
+        new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference =
+                        new OpenApiReference
+                        {
+                            Type =
+                                ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                },
+                Array.Empty<string>()
+            }
+        });
+});
+
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(
@@ -41,9 +90,12 @@ builder.Services.AddCors(options =>
 });
 
 // Database
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<AppDbContext>(
+    options =>
+        options.UseNpgsql(
+            builder.Configuration
+                .GetConnectionString(
+                    "DefaultConnection")));
 
 // Application services
 builder.Services.AddScoped<AuthService>();
@@ -57,9 +109,11 @@ builder.Services.AddScoped<
 
 // JWT configuration
 var jwtSection =
-    builder.Configuration.GetSection(JwtOptions.SectionName);
+    builder.Configuration.GetSection(
+        JwtOptions.SectionName);
 
-var jwtOptions = jwtSection.Get<JwtOptions>()
+var jwtOptions =
+    jwtSection.Get<JwtOptions>()
     ?? throw new InvalidOperationException(
         "JWT configuration is missing.");
 
@@ -69,7 +123,8 @@ if (string.IsNullOrWhiteSpace(jwtOptions.Key))
         "JWT signing key is missing.");
 }
 
-if (string.IsNullOrWhiteSpace(jwtOptions.Issuer) ||
+if (
+    string.IsNullOrWhiteSpace(jwtOptions.Issuer) ||
     string.IsNullOrWhiteSpace(jwtOptions.Audience))
 {
     throw new InvalidOperationException(
@@ -86,7 +141,9 @@ byte[] jwtKeyBytes;
 
 try
 {
-    jwtKeyBytes = Convert.FromBase64String(jwtOptions.Key);
+    jwtKeyBytes =
+        Convert.FromBase64String(
+            jwtOptions.Key);
 }
 catch (FormatException)
 {
@@ -100,7 +157,8 @@ if (jwtKeyBytes.Length < 32)
         "JWT signing key must be at least 256 bits.");
 }
 
-builder.Services.Configure<JwtOptions>(jwtSection);
+builder.Services.Configure<JwtOptions>(
+    jwtSection);
 
 // Authentication
 builder.Services
@@ -116,13 +174,18 @@ builder.Services
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
 
-                ValidIssuer = jwtOptions.Issuer,
-                ValidAudience = jwtOptions.Audience,
+                ValidIssuer =
+                    jwtOptions.Issuer,
+
+                ValidAudience =
+                    jwtOptions.Audience,
 
                 IssuerSigningKey =
-                    new SymmetricSecurityKey(jwtKeyBytes),
+                    new SymmetricSecurityKey(
+                        jwtKeyBytes),
 
-                ClockSkew = TimeSpan.Zero
+                ClockSkew =
+                    TimeSpan.Zero
             };
     });
 
@@ -130,15 +193,37 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+// Swagger is enabled so the interviewer
+// can inspect and test the deployed API.
+app.UseSwagger();
+
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint(
+        "/swagger/v1/swagger.json",
+        "GuessTheNumber API v1");
+
+    options.RoutePrefix = "swagger";
+});
+
+// Middleware
 app.UseCors(frontendCorsPolicy);
+
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Controller endpoints
 app.MapControllers();
 
-app.MapGet("/", () => Results.Ok(new
-{
-    message = "GuessTheNumber API is running"
-}));
+// API root endpoint
+app.MapGet(
+    "/",
+    () =>
+        Results.Ok(
+            new
+            {
+                message =
+                    "GuessTheNumber API is running"
+            }));
 
 app.Run();

@@ -16,6 +16,8 @@ The application allows users to register, log in, play a Guess the Number game, 
 
 **Live API:** https://guessthenumber-production-df0f.up.railway.app
 
+**Swagger API Documentation:** https://guessthenumber-production-df0f.up.railway.app/swagger/index.html
+
 ---
 
 ## Project Status
@@ -56,7 +58,9 @@ The application allows users to register, log in, play a Guess the Number game, 
 
 - [x] Cloud deployment
 
-- [x] Final deployed URL added to README
+- [x] Production Swagger API documentation
+
+- [x] Final deployed URLs added to README
 
 ---
 
@@ -68,19 +72,19 @@ The application contains three main layers:
 
 React Frontend
 
-      |
+      |
 
-      | HTTP / JSON
+      | HTTP / JSON
 
-      v
+      v
 
 ASP.NET Core Web API
 
-      |
+      |
 
-      | Entity Framework Core
+      | Entity Framework Core
 
-      v
+      v
 
 PostgreSQL
 
@@ -94,17 +98,17 @@ React
 
 http://localhost:5173
 
-        |
+        |
 
-        v
+        v
 
 ASP.NET Core API
 
 http://localhost:5124
 
-        |
+        |
 
-        v
+        v
 
 PostgreSQL
 
@@ -115,20 +119,41 @@ Docker: localhost:5433
 Production architecture:
 
 ```text
+
 Vercel
+
 React Frontend
+
 https://guess-the-number-psi-one.vercel.app
-      |
-      | HTTPS / JSON
-      v
+
+      |
+
+      | HTTPS / JSON
+
+      v
+
 Railway
+
 ASP.NET Core Web API
+
 https://guessthenumber-production-df0f.up.railway.app
-      |
-      | EF Core / Npgsql
-      v
+
+      |
+
+      +--> Swagger UI
+
+      |    https://guessthenumber-production-df0f.up.railway.app/swagger/index.html
+
+      |
+
+      | EF Core / Npgsql
+
+      v
+
 Neon
+
 PostgreSQL
+
 ```
 
 ---
@@ -181,11 +206,11 @@ Example request:
 
 {
 
-  "username": "PlayerOne",
+  "username": "PlayerOne",
 
-  "email": "player@example.com",
+  "email": "player@example.com",
 
-  "password": "ExamplePassword123"
+  "password": "ExamplePassword123"
 
 }
 
@@ -225,9 +250,9 @@ Example request:
 
 {
 
-  "email": "player@example.com",
+  "email": "player@example.com",
 
-  "password": "ExamplePassword123"
+  "password": "ExamplePassword123"
 
 }
 
@@ -239,21 +264,21 @@ A successful response contains:
 
 {
 
-  "token": "<JWT>",
+  "token": "<JWT>",
 
-  "expiresAtUtc": "<UTC timestamp>",
+  "expiresAtUtc": "<UTC timestamp>",
 
-  "user": {
+  "user": {
 
-    "id": 1,
+    "id": 1,
 
-    "username": "PlayerOne",
+    "username": "PlayerOne",
 
-    "email": "player@example.com",
+    "email": "player@example.com",
 
-    "bestScore": null
+    "bestScore": null
 
-  }
+  }
 
 }
 
@@ -331,11 +356,11 @@ The JWT technically remains valid until its expiry time, but the client no longe
 
 - When the user guesses correctly:
 
-  - The game ends
+  - The game ends
 
-  - The final attempt count is calculated
+  - The final attempt count is calculated
 
-  - The user's `BestScore` is updated only if the new score is better
+  - The user's `BestScore` is updated only if the new score is better
 
 ---
 
@@ -381,7 +406,7 @@ Request:
 
 {
 
-  "guessedNumber": 20
+  "guessedNumber": 20
 
 }
 
@@ -393,15 +418,15 @@ Example incorrect response:
 
 {
 
-  "message": "Guess higher.",
+  "message": "Guess higher.",
 
-  "attemptCount": 1,
+  "attemptCount": 1,
 
-  "isCorrect": false,
+  "isCorrect": false,
 
-  "bestScore": null,
+  "bestScore": null,
 
-  "isNewBestScore": false
+  "isNewBestScore": false
 
 }
 
@@ -413,15 +438,15 @@ Example winning response:
 
 {
 
-  "message": "Correct!",
+  "message": "Correct!",
 
-  "attemptCount": 4,
+  "attemptCount": 4,
 
-  "isCorrect": true,
+  "isCorrect": true,
 
-  "bestScore": 4,
+  "bestScore": 4,
 
-  "isNewBestScore": true
+  "isNewBestScore": true
 
 }
 
@@ -581,21 +606,21 @@ The backend uses a simple layered structure:
 
 Controllers
 
-    |
+    |
 
-    v
+    v
 
 Services
 
-    |
+    |
 
-    +-------------------+
+    +-------------------+
 
-    |                   |
+    |                   |
 
-    v                   v
+    v                   v
 
-EF Core / PostgreSQL    GameSessionStore
+EF Core / PostgreSQL    GameSessionStore
 
 ```
 
@@ -609,15 +634,15 @@ backend/GuessTheNumber.Api/
 
 |-- Controllers/
 
-|   |-- AuthController.cs
+|   |-- AuthController.cs
 
-|   `-- GameController.cs
+|   `-- GameController.cs
 
 |
 
 |-- Data/
 
-|   `-- AppDbContext.cs
+|   `-- AppDbContext.cs
 
 |
 
@@ -627,25 +652,25 @@ backend/GuessTheNumber.Api/
 
 |-- Game/
 
-|   `-- GameRules.cs
+|   `-- GameRules.cs
 
 |
 
 |-- Models/
 
-|   `-- User.cs
+|   `-- User.cs
 
 |
 
 |-- Services/
 
-|   |-- AuthService.cs
+|   |-- AuthService.cs
 
-|   |-- JwtTokenService.cs
+|   |-- JwtTokenService.cs
 
-|   |-- GameService.cs
+|   |-- GameService.cs
 
-|   `-- GameSessionStore.cs
+|   `-- GameSessionStore.cs
 
 |
 
@@ -673,17 +698,17 @@ frontend/src/
 
 |-- components/
 
-|   |-- RegisterForm.jsx
+|   |-- RegisterForm.jsx
 
-|   |-- LoginForm.jsx
+|   |-- LoginForm.jsx
 
-|   `-- GamePanel.jsx
+|   `-- GamePanel.jsx
 
 |
 
 |-- services/
 
-|   `-- api.js
+|   `-- api.js
 
 |
 
@@ -826,20 +851,84 @@ The application includes the following security measures:
 Local development:
 
 ```text
+
 Frontend: http://localhost:5173
-Backend:  http://localhost:5124
+
+Backend:  http://localhost:5124
+
 ```
 
 Production:
 
 ```text
+
 Frontend: https://guess-the-number-psi-one.vercel.app
-Backend:  https://guessthenumber-production-df0f.up.railway.app
+
+Backend:  https://guessthenumber-production-df0f.up.railway.app
+
 ```
 
 Because the frontend and backend are different browser origins, the ASP.NET Core API uses an explicit CORS policy.
 
 For production, Railway configures the deployed Vercel frontend as an allowed origin.
+
+---
+
+# Swagger / API Documentation
+
+Swagger UI is enabled so the API can be inspected and tested interactively.
+
+Local Swagger:
+
+```text
+
+http://localhost:5124/swagger/index.html
+
+```
+
+Production Swagger:
+
+```text
+
+https://guessthenumber-production-df0f.up.railway.app/swagger/index.html
+
+```
+
+Swagger documents both public and protected endpoints.
+
+Protected endpoints require JWT Bearer authentication.
+
+## Testing Protected Endpoints in Swagger
+
+1. Call:
+
+```http
+
+POST /api/auth/login
+
+```
+
+2. Copy the returned token value.
+
+3. Click Authorize in Swagger UI.
+
+4. Paste the JWT token into the authorization field.
+
+5. Click Authorize.
+
+6. Test protected endpoints such as:
+
+```http
+
+GET /api/auth/me
+
+POST /api/game/start
+
+POST /api/game/guess
+
+```
+
+Swagger adds the Bearer scheme automatically.
 
 ---
 
@@ -1262,24 +1351,43 @@ For stronger immediate revocation, refresh tokens and token revocation could be 
 The application is fully deployed using cloud services.
 
 | Application part | Platform | Status |
+
 |---|---|---|
+
 | React frontend | Vercel | Deployed |
+
 | ASP.NET Core API | Railway | Deployed |
+
 | PostgreSQL | Neon | Deployed |
+
 | Source code | GitHub | Published |
+
+| API documentation | Swagger UI | Enabled |
 
 ## Production URLs
 
 Frontend:
 
 ```text
+
 https://guess-the-number-psi-one.vercel.app
+
 ```
 
 Backend:
 
 ```text
+
 https://guessthenumber-production-df0f.up.railway.app
+
+```
+
+Swagger:
+
+```text
+
+https://guessthenumber-production-df0f.up.railway.app/swagger/index.html
+
 ```
 
 ## Railway Backend Configuration
@@ -1289,11 +1397,17 @@ The ASP.NET Core API is deployed to **Railway using Docker**. The production con
 Important Railway environment variables include:
 
 ```text
+
 ConnectionStrings__DefaultConnection
+
 Jwt__Key
+
 ASPNETCORE_ENVIRONMENT=Production
+
 PORT=10000
+
 Cors__AllowedOrigins__0=https://guess-the-number-psi-one.vercel.app
+
 ```
 
 Secrets are stored in Railway environment variables and are not committed to GitHub.
@@ -1305,7 +1419,9 @@ The React/Vite frontend is deployed on **Vercel** with `frontend` as the project
 Production configuration:
 
 ```text
+
 VITE_API_BASE_URL=https://guessthenumber-production-df0f.up.railway.app
+
 ```
 
 The API base URL is public configuration, not a secret.
@@ -1325,12 +1441,17 @@ The interview brief asks for one interesting bonus feature. The implemented bonu
 Example:
 
 ```text
+
 Guess History
 
-6   ↑ Higher
-32  ↓ Lower
-20  ↑ Higher
-27  ✓ Correct
+6   ↑ Higher
+
+32  ↓ Lower
+
+20  ↑ Higher
+
+27  ✓ Correct
+
 ```
 
 ## How It Works
@@ -1340,9 +1461,13 @@ Guess History
 After each successful guess request, the frontend stores:
 
 - Guessed number
+
 - Backend feedback
+
 - Attempt number
+
 - Correct/incorrect status
+
 - Repeated-guess status
 
 The history is intentionally **session-only for the current game**. It does not require a database migration and does not replace the required persistent `BestScore` field.
@@ -1352,10 +1477,15 @@ The history is intentionally **session-only for the current game**. It does not 
 The frontend derives the remaining possible range from the backend's higher/lower responses.
 
 ```text
-Start:       Possible range: 1 - 43
-Guess 10:    Higher -> 11 - 43
-Guess 35:    Lower  -> 11 - 34
-Guess 20:    Higher -> 21 - 34
+
+Start:       Possible range: 1 - 43
+
+Guess 10:    Higher -> 11 - 43
+
+Guess 35:    Lower  -> 11 - 34
+
+Guess 20:    Higher -> 21 - 34
+
 ```
 
 The frontend never receives the secret target number. It updates the range only from information already returned by the backend.
@@ -1367,7 +1497,9 @@ Before submitting a guess, the frontend checks whether the same number already e
 If it does, the history displays:
 
 ```text
+
 ⚠ Already guessed
+
 ```
 
 The repeated guess is still sent to the backend and still counts as an attempt. This preserves the original game rules while providing useful player feedback.
@@ -1377,10 +1509,15 @@ The repeated guess is still sent to the backend and still counts as an attempt. 
 Guess History uses visual feedback to make the game easier to scan:
 
 ```text
-Higher   -> purple
-Lower    -> orange
-Correct  -> green
+
+Higher   -> purple
+
+Lower    -> orange
+
+Correct  -> green
+
 Repeated -> warning style
+
 ```
 
 ## Reset Behavior
@@ -1388,9 +1525,13 @@ Repeated -> warning style
 When a new game starts:
 
 ```text
+
 Guess History -> cleared
+
 Possible range -> reset to 1 - 43
-Attempt count  -> reset
+
+Attempt count  -> reset
+
 ```
 
 ## Why This Bonus Was Chosen
@@ -1398,11 +1539,17 @@ Attempt count  -> reset
 The feature was intentionally implemented in frontend state because it:
 
 - Adds useful player feedback
+
 - Improves the game UX
+
 - Requires no database schema change
+
 - Does not interfere with `BestScore`
+
 - Keeps the secret number server-side
+
 - Handles the repeated-guess edge case
+
 - Adds value without overengineering the 2-day assessment
 
 ## Additional Frontend UX
@@ -1487,11 +1634,17 @@ The application has been manually tested for:
 
 - Backend build
 
+- Local Swagger UI
+
+- Swagger JWT authorization
+
+- Protected endpoints through Swagger
+
 ---
 
 # Interview Explanation
 
-> The React frontend handles presentation and browser state. It communicates with an ASP.NET Core Web API through JSON HTTP requests. Authentication uses JWT Bearer tokens. PostgreSQL stores user credentials as password hashes and stores one nullable `BestScore` field per user. Active games stay server-side in memory so the frontend never knows the secret number. When a game is completed, the backend conditionally updates `BestScore` only when the new attempt count is lower than the existing value. As a bonus, the frontend keeps session-only Guess History, derives the remaining possible range from higher/lower feedback, and warns about repeated guesses without changing the backend attempt-counting rules. The production frontend is deployed on Vercel, the ASP.NET Core API on Railway, and PostgreSQL on Neon.
+> The React frontend handles presentation and browser state. It communicates with an ASP.NET Core Web API through JSON HTTP requests. Authentication uses JWT Bearer tokens. PostgreSQL stores user credentials as password hashes and stores one nullable `BestScore` field per user. Active games stay server-side in memory so the frontend never knows the secret number. When a game is completed, the backend conditionally updates `BestScore` only when the new attempt count is lower than the existing value. As a bonus, the frontend keeps session-only Guess History, derives the remaining possible range from higher/lower feedback, and warns about repeated guesses without changing the backend attempt-counting rules. Swagger UI documents the API and supports JWT-authorized testing. The production frontend is deployed on Vercel, the ASP.NET Core API on Railway, and PostgreSQL on Neon.
 
 ---
 
