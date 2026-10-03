@@ -972,6 +972,7 @@ Future Improvements
 - Health-check endpoint
 - Accessibility improvements
 - Further responsive UI polish
+
 Author
 Aya Gad
 GitHub: https://github.com/AyaGad94
