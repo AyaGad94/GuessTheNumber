@@ -5,9 +5,13 @@ Project goal: Build and deploy a secure, maintainable full-stack application wit
 
 Repository
 GitHub: https://github.com/AyaGad94/GuessTheNumber
+
 Live application: https://guess-the-number-psi-one.vercel.app
+
 Live API: https://guessthenumber-production-df0f.up.railway.app
+
 Swagger API Documentation: https://guessthenumber-production-df0f.up.railway.app/swagger/index.html
+
 Project Status
 Core requirements
 - [x] User registration
