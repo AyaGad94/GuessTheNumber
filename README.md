@@ -974,6 +974,7 @@ Future Improvements
 - Further responsive UI polish
 
 Author
+
 Aya Gad
 GitHub: https://github.com/AyaGad94
 
