@@ -975,6 +975,8 @@ Future Improvements
 Author
 Aya Gad
 GitHub: https://github.com/AyaGad94
+
 LinkedIn: https://www.linkedin.com/in/aya-gad-a55b79159/
+
 License
 This project is presented as a portfolio and technical demonstration of full-stack application development, API design, authentication, database integration, and cloud deployment.
