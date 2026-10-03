@@ -976,6 +976,7 @@ Future Improvements
 Author
 
 Aya Gad
+
 GitHub: https://github.com/AyaGad94
 
 LinkedIn: https://www.linkedin.com/in/aya-gad-a55b79159/
